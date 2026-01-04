@@ -110,8 +110,7 @@
       system =
         let
           # https://github.com/jmbaur/nixpkgs/blob/115c1d69015de09f4211890477af05ba4fb873b9/nixos/modules/virtualisation/lxc-container.nix#L18-L19
-          initScriptFilename = if config.boot.initrd.systemd.enable then "prepare-root" else "init";
-          initScript = config.system.build.toplevel + "/${initScriptFilename}";
+          initScript = if config.boot.initrd.systemd.enable then "prepare-root" else "init";
         in
         {
           activationScripts = {
@@ -131,7 +130,7 @@
             ''
             # Re-link the initScript (in case of toggling `boot.initrd.systemd.enable`)
             + ''
-              ln -sf ${initScript} /sbin/init;
+              ln -sf "$systemConfig/${initScript}" /sbin/init
             '';
 
             # https://github.com/aldur/nixos-crostini/issues/3#issuecomment-3481799191
@@ -159,7 +158,7 @@
               contents = [
                 # same as baguette Debian image
                 {
-                  source = initScript;
+                  source = config.system.build.toplevel + "/${initScript}";
                   target = "/sbin/init";
                 }
               ];
